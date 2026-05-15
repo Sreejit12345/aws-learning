@@ -4,8 +4,23 @@ from aws_durable_execution_sdk_python.execution import durable_execution
 import boto3
 import json
 
+'''
+
+To attach a trigger
+
+# make sure to publish a version and mention full ARN while configuring trigger from s3 portal.
+
+EG ARN:
+#arn:aws:lambda:ap-south-1:468094684048:function:durablelambdaOrchs:1
+
+
+Ref: https://docs.aws.amazon.com/lambda/latest/dg/durable-invoking.html
+
+
+'''
+
 @durable_step
-# This step receives raw event and extracts the bucker name key and returns a tuple
+# This step receives raw event and extracts the bucket name key and returns a tuple
 def parse_event_return_csv_path(step_context: StepContext, event) -> str:
     step_context.logger.info("Hello from 'parse_event_return_csv_path' step")
 
@@ -60,6 +75,7 @@ def lambda_handler(event, context) -> dict:
     return {
         "statusCode": 200
     }
+
 
 def get_s3_client():
 
