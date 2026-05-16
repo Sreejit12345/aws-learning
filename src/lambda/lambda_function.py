@@ -31,10 +31,22 @@ Make sure to be on a linux env, or windows(WSL) while packgaing dependencies. As
 '''
 
 
+'''
+
+We have set up a SNS topic testDataTopic which is subscribed to an email.
+
+On lambda completion , we are sending the corresponding message to SNS which further sends to email.
+
+We also have to attach "AmazonSNSFullAccess" role to lambda IAM.
+
+'''
+
+
 def lambda_handler(event, context):
 
     file_name=str(uuid.uuid1()) + '.csv'
     op_key=f'reports/city_revenue_summary_{str(datetime.date.today())}.csv'
+    sns_client=get_sns_client()
     
     try:
 
@@ -47,9 +59,21 @@ def lambda_handler(event, context):
         final_df=perform_transformation(df)
         write_data_to_s3(s3_client,final_df,bucket_name,op_key)
 
+        sns_client.publish(
+            TopicArn='arn:aws:sns:us-east-1:468094684048:test1234',
+            Message=f'file tranformed successfully and stored in bucket {bucket_name} and key {op_key}',
+            Subject='File transformed successfully'
+        )
+
 
     except Exception as e:
         print(f"Exception caught {e}")
+
+        sns_client.publish(
+            TopicArn='arn:aws:sns:us-east-1:468094684048:test1234',
+            Message=f'file transformations failed for key {key}',
+            Subject='File transformation failed'
+        )
     
     print('Finished processing!!!!!!')
 
@@ -89,6 +113,11 @@ def write_data_to_s3(s3_client,df,bucket,key):
     df.to_csv(csv_buffer,index=False)
     csv_buffer.seek(0)
     s3_client.upload_fileobj(csv_buffer,bucket,key)
+
+def get_sns_client():
+    sns_client = boto3.client('sns')
+    return sns_client
+
 
 
 
