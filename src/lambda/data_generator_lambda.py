@@ -19,7 +19,9 @@ Function to generate mock data in this format:
 }
 
 
-This also sends the message to SQS queue. Remeber to give AmazonSQSFullAccess to the IAM role of the lambda
+This also sends the message to SQS queue. Remeber to give AmazonSQSFullAccess to the IAM role of the lambda.
+
+We will trigger this lambda using eventbridge scheduler.
 
 
 '''
