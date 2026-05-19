@@ -1,0 +1,15 @@
+2026.05.13 08:51:33 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at c:\Users\SREEJIT\OneDrive\Documents\aws-learning\.metals\lsp.trace.json or C:\Users\SREEJIT\AppData\Local\scalameta\metals\cache\lsp.trace.json
+2026.05.13 08:51:39 INFO  logging to files C:\Users\SREEJIT\OneDrive\Documents\aws-learning\.metals\metals.log
+2026.05.13 08:51:39 INFO  Started: Metals version 1.6.7 in folders 'C:\Users\SREEJIT\OneDrive\Documents\aws-learning' for client Visual Studio Code 1.119.0.
+2026.05.13 08:51:39 INFO  time: initialize in 0.11s
+2026.05.13 08:51:39 INFO  Memory monitor started
+2026.05.13 08:51:44 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.05.13 08:51:47 WARN  no build tool detected in workspace 'C:\Users\SREEJIT\OneDrive\Documents\aws-learning'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.05.13 08:51:47 WARN  Build server is not auto-connectable.
+2026.05.13 16:54:05 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at c:\Users\SREEJIT\OneDrive\Documents\aws-learning\.metals\lsp.trace.json or C:\Users\SREEJIT\AppData\Local\scalameta\metals\cache\lsp.trace.json
+2026.05.13 16:54:10 INFO  logging to files C:\Users\SREEJIT\OneDrive\Documents\aws-learning\.metals\metals.log
+2026.05.13 16:54:10 INFO  Started: Metals version 1.6.7 in folders 'C:\Users\SREEJIT\OneDrive\Documents\aws-learning' for client Visual Studio Code 1.120.0.
+2026.05.13 16:54:10 INFO  Memory monitor started
+2026.05.13 16:54:17 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.05.13 16:54:19 WARN  no build tool detected in workspace 'C:\Users\SREEJIT\OneDrive\Documents\aws-learning'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2026.05.13 16:54:20 WARN  Build server is not auto-connectable.
