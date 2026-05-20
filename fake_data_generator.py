@@ -31,8 +31,8 @@ fake = Faker()
 # CONFIG
 # =========================================================
 
-NUM_ORDER_RECORDS = 10
-NUM_COUNTRY_RECORDS = 10
+NUM_ORDER_RECORDS = 25
+NUM_COUNTRY_RECORDS = 16
 
 # =========================================================
 # ORDER DATASET CONFIG
