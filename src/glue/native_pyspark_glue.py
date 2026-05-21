@@ -10,6 +10,7 @@ To reuse a custom module:
 5) place that .whl file in s3, copy the s3 uri like "s3://orders123456sree/utils/my_sample_package-1.0.0-py3-none-any.whl"
 and put it in "Python library path" under job settings.
 
+Note: make sure to have __init__.py under each folder- so python considers it a package
 '''
 
 
