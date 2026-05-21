@@ -63,16 +63,31 @@ o_df=spark.read.format('csv').option('path',"s3://orders123456sree/sourceA/").op
 
 ##########################################################################################################################
 
-#write all 3 dataframes
+#write dataframes
 
 
-# direct write to s3
-# but this does not update the catalog by default,and we need to make sure crawler runs to register table and discover partitions.
+# direct write dataframe to s3
+# but this does not update the catalog by default,and we need to make sure crawler runs after to register table and discover partitions.
 o_df.write.format('parquet').option('path',"s3://orders123456sree/sourceA-op-sparknative/").mode('overwrite').save()
 
 
 #save as table registers table and partitions in the glue catalog
 covid_df.write.format('parquet').partitionBy('country').option('path',"s3://orders123456sree/sourceBopsparknative/").mode('overwrite').saveAsTable('`dev-bronze-sales`.`sourceBopsparknative`')
+
+
+# write dynamic frame by glue catalog api
+#https://docs.aws.amazon.com/glue/latest/dg/update-from-job.html
+
+sink = glueContext.getSink(
+    connection_type="s3", 
+    path="s3://orders123456sree/sourceA-op-gluenative/",
+    enableUpdateCatalog=True,
+    #partitionKeys=["region", "year", "month", "day"]
+    )
+
+sink.setFormat("csv")
+sink.setCatalogInfo(catalogDatabase='dev-bronze-sales', catalogTableName='gapi')
+sink.writeFrame(orders_dynamic)
 
 
 
