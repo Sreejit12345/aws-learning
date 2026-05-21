@@ -1,3 +1,10 @@
+'''
+
+Note: This takes the default catalog created in the glue account
+
+'''
+
+
 import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
@@ -49,18 +56,24 @@ orders_df= orders_dynamic.toDF()
 
 
 
-
 #native spark read file
 o_df=spark.read.format('csv').option('path',"s3://orders123456sree/sourceA/").option('header',True).option('inferSchema',True).load()
 
 
 
+##########################################################################################################################
 
-# display all 3
+#write all 3 dataframes
 
-orders_df.show()
-covid_df.show()
-o_df.show()
+
+# direct write to s3
+# but this does not update the catalog by default,and we need to make sure crawler runs to register table and discover partitions.
+o_df.write.format('parquet').option('path',"s3://orders123456sree/sourceA-op-sparknative/").mode('overwrite').save()
+
+
+#save as table registers table and partitions in the glue catalog
+covid_df.write.format('parquet').partitionBy('country').option('path',"s3://orders123456sree/sourceBopsparknative/").mode('overwrite').saveAsTable('`dev-bronze-sales`.`sourceBopsparknative`')
+
 
 
 job.commit()
