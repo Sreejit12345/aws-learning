@@ -22,16 +22,22 @@ args = getResolvedOptions(sys.argv, ['JOB_NAME'])
 
 conf = SparkConf()
 
+
+#we also enable -datalake-formats delta at the job level in glue, to make sure glue loads delta lake libraries.
+
+# enable delta specific behavior and commands for spark
 conf.set(
     'spark.sql.extensions',
     'io.delta.sql.DeltaSparkSessionExtension'
 )
 
+#replace sparks native catalog with delta aware behavior
 conf.set(
     'spark.sql.catalog.spark_catalog',
     'org.apache.spark.sql.delta.catalog.DeltaCatalog'
 )
 
+#transaction safety
 conf.set(
     'spark.delta.logStore.class',
     'org.apache.spark.sql.delta.storage.S3SingleDriverLogStore'
