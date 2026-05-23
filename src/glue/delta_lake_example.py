@@ -1,6 +1,8 @@
 #https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-format-delta-lake.html
 
 # remember to enable all properties as mentioned in documentation
+# note in this example, we override the default spark_catalog with  additional properties for delta, internally the 
+# spark_catalog has a pointer to the default AWS account ID glue catalog, so all databases and tables get populated under that.
 
 import sys
 from awsglue.transforms import *

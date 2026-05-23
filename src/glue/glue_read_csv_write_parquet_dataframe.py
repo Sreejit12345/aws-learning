@@ -1,6 +1,8 @@
 '''
 
-Note: This takes the default catalog created in the glue account
+Note: Since we dont mention any catalog, this takes the default catalog created in the glue account. Here we dont mention catalog, so spark uses the default
+"spak_catalog"  which
+# has a pointer to the default AWS account ID glue catalog, so all databases and tables get populated under that.
 
 '''
 
