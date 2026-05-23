@@ -73,6 +73,7 @@ use by the Spark libraries as glue_catalog. Data Catalog tables are identified b
 #
 spark.sql("CREATE DATABASE IF NOT EXISTS glue_catalog.icebergDatabase")
 
+## remember iceberg is inferred via the catalog, writeTo uses a catalog aware write- and since catalog is configured to iceberg the tabke is in iceberg
 df.writeTo(f"glue_catalog.icebergDatabase.icebergexample") \
     .tableProperty("format-version", "2") \
     .createOrReplace()
