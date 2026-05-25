@@ -41,17 +41,16 @@ object readJdbc {
 
     // standard read using jdbc
 
-    df = spark.read.format("jdbc") \
-    .option("url", "jdbc:mysql://database-1-instance-1.cf0qu4c0i6i8.ap-south-1.rds.amazonaws.com:3306/demo") \
-    .option("dbtable", "demo.Persons") \
-    .option("user", "admin") \
-    .option("password", "s2d3s2d3") \
+    val df = spark.read.format("jdbc")
+    .option("url", "jdbc:mysql://database-1-instance-1.cf0qu4c0i6i8.ap-south-1.rds.amazonaws.com:3306/demo")
+    .option("dbtable", "demo.Persons")
+    .option("user", "admin")
+    .option("password", "s2d3s2d3")
     .load()
 
     df.show()
 
         
-            
     Job.commit()
   }
 }
