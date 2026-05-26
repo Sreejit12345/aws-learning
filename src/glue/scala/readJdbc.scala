@@ -47,8 +47,41 @@ object readJdbc {
     .option("user", "admin")
     .option("password", "s2d3s2d3")
     .load()
+    
+     df.show()
+    
+    // if data is already cataloged we can read from catalog table directly
+    
+    val df2=glueContext.getCatalogSource(
+            database ="dev-bronze-sales",
+            tableName ="sql_crawldemo_persons"
+            ).getDynamicFrame().toDF()
+    
+    df2.show()
+    
 
-    df.show()
+    // writing
+    
+    // write to jdbc table via native syntax
+    
+    df.select("personid","firstname","lastname").
+    write.format("jdbc")
+    .option("url", "jdbc:mysql://database-1-instance-1.cf0qu4c0i6i8.ap-south-1.rds.amazonaws.com:3306/demo")
+    .option("dbtable", "demo.Persons_selected")
+    .option("user", "admin")
+    .mode("overwrite")
+    .option("password", "s2d3s2d3")
+    .save()
+    
+    
+    
+    // write cataloged table
+    // remember for this we need glue and STS endpoint, becuase this glue JOB runs on the same subnet as RDS instance.
+    // we created 2 vpc endpoints.
+    df.select("personid","firstname","lastname").write.format("parquet").option("path","s3://orders123456sree/jdbcex/").mode("overwrite").saveAsTable("`dev-bronze-sales`.`jdbcex`")
+    
+
+    
 
         
     Job.commit()
