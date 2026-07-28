@@ -1,0 +1,47 @@
+Parameters:
+  
+  DescriptionOfSG:
+    Description: what does SG do?
+    Type: String
+  
+  SGInboudRuleDesc:
+    Description: What does inbound rule do?
+    Type: String
+  
+  InstanceType:
+    Type: CommaDelimitedList
+    Default: "t2.nano,t2.micro,t2.micro"
+
+
+Resources:
+  # since no subnet is mentioned, it created in any one subnet under VPC
+  sreejitEC2Stack:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-028ba4d4ccb4b7b72"
+      InstanceType: !Select [ 0, !Ref InstanceType ]   #select 0th element from parameter
+      KeyName: !Ref sreejitkeypair
+      SecurityGroups: 
+      - !Ref secgroup
+
+  sreejitkeypair:
+    Type: AWS::EC2::KeyPair
+    Properties:
+      KeyFormat: "pem"
+      KeyName: "mykey1"
+      KeyType: "rsa"
+
+  # since, no VPC Id is mentioned, this is created in default VPC
+  secgroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Ref DescriptionOfSG
+      GroupName: mysg1
+      SecurityGroupIngress:
+       - CidrIp : 0.0.0.0/0
+         Description : !Ref SGInboudRuleDesc
+         FromPort : 22
+         IpProtocol: tcp
+         ToPort: 22
+  
+ 
