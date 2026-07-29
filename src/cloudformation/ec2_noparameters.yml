@@ -3,7 +3,7 @@ Resources:
   sreejitEC2Stack:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: "ami-028ba4d4ccb4b7b72"
+      ImageId: "ami-02b64aa047cb5edf5"
       InstanceType: "t2.nano"
       KeyName: !Ref sreejitkeypair
       SecurityGroups: 
@@ -29,3 +29,4 @@ Resources:
          IpProtocol: tcp
          ToPort: 22
         
+ 

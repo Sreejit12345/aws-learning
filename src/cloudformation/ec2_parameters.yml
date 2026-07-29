@@ -12,13 +12,12 @@ Parameters:
     Type: CommaDelimitedList
     Default: "t2.nano,t2.micro,t2.micro"
 
-
 Resources:
   # since no subnet is mentioned, it created in any one subnet under VPC
   sreejitEC2Stack:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: "ami-028ba4d4ccb4b7b72"
+      ImageId: "ami-02b64aa047cb5edf5"
       InstanceType: !Select [ 0, !Ref InstanceType ]   #select 0th element from parameter
       KeyName: !Ref sreejitkeypair
       SecurityGroups: 
