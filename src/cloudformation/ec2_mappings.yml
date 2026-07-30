@@ -1,0 +1,52 @@
+Mappings:
+  instanceMap:
+    us-east-1:
+      instancetype: t2.nano
+    us-east-2:
+      instancetype: t2.micro
+
+  descriptionMap:
+    dev:
+      desc: Development environment
+    prod:
+      desc: Production environment
+    test:
+      desc: UAT environment
+
+Parameters:
+  env:
+    Type: String
+    AllowedValues: [dev,test,prod]
+
+Resources:
+  # since no subnet is mentioned, it created in any one subnet under VPC
+  sreejitEC2Stack:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-02b64aa047cb5edf5"
+      InstanceType: !FindInMap [instanceMap, !Ref "AWS::Region",instancetype]
+      KeyName: !Ref sreejitkeypair
+      SecurityGroups: 
+      - !Ref secgroup
+
+  sreejitkeypair:
+    Type: AWS::EC2::KeyPair
+    Properties:
+      KeyFormat: "pem"
+      KeyName: "mykey1"
+      KeyType: "rsa"
+
+  # since, no VPC Id is mentioned, this is created in default VPC
+  secgroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !FindInMap [descriptionMap,!Ref env,desc]
+      GroupName: mysg1
+      SecurityGroupIngress:
+       - CidrIp : 0.0.0.0/0
+         Description : Allow inbound from all ips to port 22
+         FromPort : 22
+         IpProtocol: tcp
+         ToPort: 22
+        
+ 
