@@ -1,0 +1,103 @@
+# Create two separate CloudFormation YAML templates: first, write an S3 template that takes an Env Parameter (dev or prod),
+# uses a Condition IsProd (Env == prod) to set bucket versioning (Enabled for prod, Suspended for dev), and defines an Output named ExportedBucketName 
+# exporting the bucket name 
+
+
+# second, write an EC2 template that takes the same Env Parameter, uses a Mapping to select instance type
+# (dev -> t2.nano, prod -> t2.micro), deploys an AWS::EC2::SecurityGroup whose GroupDescription includes the bucket name ,
+#  and launches an AWS::EC2::Instance attached to that security group.
+
+
+
+
+#YAML1
+
+
+Parameters:
+  environment:
+    Type: String
+    AllowedValues: 
+      - dev
+      - prod
+
+Conditions:
+  ProdEnv : !Equals [!Ref environment, prod]
+  DevEnv  : !Equals [!Ref environment, dev]
+
+Resources:
+  MyS3BucketPrd:
+    Type: AWS::S3::Bucket
+    Condition: ProdEnv
+    Properties:
+      BucketName: !Sub "sreejitsbkt${environment}"
+      VersioningConfiguration:
+        Status: Enabled
+
+  MyS3BucketDev:
+    Type: AWS::S3::Bucket
+    Condition: DevEnv
+    Properties:
+      BucketName: !Sub "sreejitsbkt${environment}"
+  
+Outputs:
+  nameofs3:
+    Description: Name of the bucket
+    Value: !If [ProdEnv, !Ref MyS3BucketPrd, !Ref MyS3BucketDev]  #ref of s3 bucket gives bucketname
+    Export: 
+      Name: !Sub "bucketname${AWS::StackName}"
+
+
+#YAML2 (ideally this YAML should be in a different file. I am putting it here for clarity )
+
+Parameters:
+  environment:
+    Type: String
+    AllowedValues: 
+      - dev
+      - prod
+  
+  stackName:
+    Type: String
+    Description: Enter the stackname whose o/p is to be referred..
+
+Mappings:
+  environmentMap:
+    dev:
+      instanceType: t2.nano
+    prod:
+      instanceType: t2.micro
+
+Resources:
+  # since no subnet is mentioned, it created in any one subnet under VPC
+  sreejitEC2Stack:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-02b64aa047cb5edf5"
+      InstanceType: !FindInMap [environmentMap, !Ref environment,instanceType]
+      KeyName: !Ref sreejitkeypair
+      SecurityGroups: 
+      - !Ref secgroup
+
+  sreejitkeypair:
+    Type: AWS::EC2::KeyPair
+    Properties:
+      KeyFormat: "pem"
+      KeyName: "mykey1"
+      KeyType: "rsa"
+
+  # since, no VPC Id is mentioned, this is created in default VPC
+  secgroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+
+      GroupDescription: 
+        Fn::ImportValue:
+          Fn::Sub: "bucketname${stackName}"
+
+      GroupName: mysg1
+      SecurityGroupIngress:
+       - CidrIp : 0.0.0.0/0
+         Description : Allow inbound from all ips to port 22
+         FromPort : 22
+         IpProtocol: tcp
+         ToPort: 22
