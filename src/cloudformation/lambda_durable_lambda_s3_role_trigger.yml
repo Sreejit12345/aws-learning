@@ -1,0 +1,105 @@
+# We need 1 durable lambda (orchestrator)
+# We need 1 normal lambda (worker)
+# we need 1 s3 bucket
+# we need 1 role that has access to s3 and to trigger lambda(lambdaFullAccess). This role can be assumed by both lambdas
+# a trigger to trigger durable lambda on s3 event
+# normal lambda needs layers for pandas (we add pandas for singapore layer)
+
+
+# from aws documentation:
+
+# If you create the target resource and related permissions in the same template, you might have a circular dependency.
+# For example, you might use the AWS::Lambda::Permission resource to grant the bucket permission to invoke an AWS Lambda function.
+# However, AWS CloudFormation can't create the bucket until the bucket has permission to invoke the function (AWS CloudFormation checks whether the bucket can 
+# invoke the function). 
+# If you're using Refs to pass the bucket name, this leads to a circular dependency.
+
+# To solve, first we remove notification option in S3, then in 2nd deployment we uncomment notification to update stack to include notifications.
+# Also we use a version, and use the version arn for both resource based policy and to create s3 event notification on lambda
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+
+Resources:
+
+  DurableLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+                    print("hello durable lambda")
+                    print("replace with actual code")
+      Description: Orchestrator durable lambda
+      DurableConfig:
+        ExecutionTimeout: 31622400
+      Role: !GetAtt IAMROLE.Arn
+      FunctionName: OrchestratorLambdaDurable
+      Runtime: python3.12
+      Handler: lambda_handler
+
+  DurableLambdaVersion1:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref DurableLambda
+      
+
+  NormalLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+                    print("hello normal lambda")
+                    print("replace with actual code")
+      Description: Orchestrator durable lambda
+      Role: !GetAtt IAMROLE.Arn
+      FunctionName: WorkerLambda
+      Runtime: python3.12
+      Layers:
+        - arn:aws:lambda:ap-southeast-1:770693421928:layer:Klayers-p312-pandas:17
+      Handler: lambda_handler
+
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: durablelambdaproject
+      Tags:
+        - Key : type
+          Value : cloudformation
+      #NotificationConfiguration:
+        #LambdaConfigurations:
+          #- Event: s3:ObjectCreated:*
+            #Filter:
+              #S3Key:
+                #Rules:
+                  #- Name: Suffix
+                    #Value: ".csv"
+                  #- Name: Prefix
+                    #Value: input/
+            #Function: !Ref DurableLambdaVersion1
+
+  IAMROLE:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:    # This defines who can assume this role, in this case lambda can assume this role
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      ManagedPolicyArns: 
+      - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+      - "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+  
+  # resouce based lambda policy to make sure s3 can trigger lambda
+  s3InvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DurableLambdaVersion1
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref 'AWS::AccountId'
+      SourceArn: !GetAtt S3Bucket.Arn
+      
