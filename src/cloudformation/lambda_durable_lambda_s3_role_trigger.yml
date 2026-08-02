@@ -17,7 +17,7 @@
 # To solve, first we comment notification option in S3, then in 2nd deployment we uncomment notification to update stack to include notifications.
 # Also we use a version, and use the version arn for both resource based policy and to create s3 event notification on lambda
 # Since we cant update code, in an existing version- we make sure that the durable lambda code is uploaded in s3
-# Before running this make sure that Durable lambda code is available in the zip in s3 location. We should alod upload durable fn package as dependency.
+# Before running this make sure that Durable lambda code is available in the zip in s3 location. We should also upload durable fn package as dependency in zip file.
 
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
@@ -32,6 +32,7 @@ Resources:
       Role: !GetAtt IAMROLE.Arn
       FunctionName: OrchestratorLambdaDurable
       Runtime: python3.14
+      # If we deploy via s3 then we should put file_name.function_name
       Handler: durable_lambda_orchestrator.lambda_handler
 
   DurableLambdaVersion1:
@@ -39,7 +40,6 @@ Resources:
     Properties:
       FunctionName: !Ref DurableLambda
       
-
   NormalLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -53,6 +53,7 @@ Resources:
       Runtime: python3.12
       Layers:
         - arn:aws:lambda:ap-southeast-1:770693421928:layer:Klayers-p312-pandas:17
+      # If we deploy via inline code then we should put index.function_name, as the inline code is put into index.py
       Handler: index.lambda_handler
 
   S3Bucket:
