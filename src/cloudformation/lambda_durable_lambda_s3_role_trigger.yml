@@ -1,7 +1,7 @@
 # We need 1 durable lambda (orchestrator)
 # We need 1 normal lambda (worker)
 # we need 1 s3 bucket
-# we need 1 role that has access to s3 and to trigger lambda(lambdaFullAccess). This role can be assumed by both lambdas
+# we need 1 role that has access to s3 and to trigger lambda(lambdaFullAccess). This role can be assumed by both lambdas. Also needs AWSLambdaBasicExecutionRole for cloudwtach logs etc..
 # a trigger to trigger durable lambda on s3 event
 # normal lambda needs layers for pandas (we add pandas for singapore layer)
 
@@ -14,7 +14,7 @@
 # invoke the function). 
 # If you're using Refs to pass the bucket name, this leads to a circular dependency.
 
-# To solve, first we remove notification option in S3, then in 2nd deployment we uncomment notification to update stack to include notifications.
+# To solve, first we comment notification option in S3, then in 2nd deployment we uncomment notification to update stack to include notifications.
 # Also we use a version, and use the version arn for both resource based policy and to create s3 event notification on lambda
 # Since we cant update code, in an existing version- we make sure that the durable lambda code is uploaded in s3
 # Before running this make sure that Durable lambda code is available as zip in s3 location.
@@ -35,7 +35,7 @@ Resources:
       Role: !GetAtt IAMROLE.Arn
       FunctionName: OrchestratorLambdaDurable
       Runtime: python3.12
-      Handler: lambda_handler
+      Handler: durable_lambda_orchestrator.lambda_handler
 
   DurableLambdaVersion1:
     Type: AWS::Lambda::Version
@@ -52,11 +52,11 @@ Resources:
                     print("replace with actual code")
       Description: Orchestrator durable lambda
       Role: !GetAtt IAMROLE.Arn
-      FunctionName: WorkerLambda
+      FunctionName: durablelambdaWorker
       Runtime: python3.12
       Layers:
         - arn:aws:lambda:ap-southeast-1:770693421928:layer:Klayers-p312-pandas:17
-      Handler: lambda_handler
+      Handler: index.lambda_handler
 
   S3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -92,6 +92,7 @@ Resources:
       ManagedPolicyArns: 
       - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
       - "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
   
   # resouce based lambda policy to make sure s3 can trigger lambda
   s3InvokeLambda:
