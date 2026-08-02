@@ -16,6 +16,8 @@
 
 # To solve, first we remove notification option in S3, then in 2nd deployment we uncomment notification to update stack to include notifications.
 # Also we use a version, and use the version arn for both resource based policy and to create s3 event notification on lambda
+# Since we cant update code, in an existing version- we make sure that the durable lambda code is uploaded in s3
+# Before running this make sure that Durable lambda code is available as zip in s3 location.
 
 AWSTemplateFormatVersion: "2010-09-09"
 
@@ -26,10 +28,8 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        ZipFile: |
-                    print("hello durable lambda")
-                    print("replace with actual code")
-      Description: Orchestrator durable lambda
+        S3Bucket: codebucket9836
+        S3Key: deployment_pack.zip
       DurableConfig:
         ExecutionTimeout: 31622400
       Role: !GetAtt IAMROLE.Arn
