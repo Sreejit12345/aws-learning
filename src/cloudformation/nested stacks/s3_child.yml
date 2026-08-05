@@ -1,0 +1,25 @@
+Resources:
+  Mys3BucketSreejit:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: cloudformationsreejitbkt
+      Tags:
+        - Key : type
+          Value : cloudformation
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+Outputs:
+  mys3BucketName:
+    Description: Bucket name
+    Value: !Ref Mys3BucketSreejit
+  mys3BucketArn:
+    Description: Bucket arn
+    Value: !GetAtt Mys3BucketSreejit.Arn
+
+
+        
+    

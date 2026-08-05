@@ -1,0 +1,19 @@
+# This invokes 2 nested stacks (1 for s3 another for iam which has access on the s3 bucket created)
+
+Resources:
+  NestedStackS3Example:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      #object URL where cloudformation for nested stack exists
+      TemplateURL: https://cf-templates-1q6g68kxca0qa-us-east-1.s3.us-east-1.amazonaws.com/2026-08-05T065404.142Zfra-s3_child.yml
+    
+  NestedStackIAMExample:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      #object URL where cloudformation for nested stack exists
+      TemplateURL: https://cf-templates-1q6g68kxca0qa-us-east-1.s3.us-east-1.amazonaws.com/2026-08-05T074721.340Z16h-iam_child.yml
+      Parameters:
+        S3BucketArN: !GetAtt NestedStackS3Example.Outputs.mys3BucketArn
+
+
+    

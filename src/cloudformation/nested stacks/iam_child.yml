@@ -1,0 +1,36 @@
+Resources:
+    MyIAM:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action: 
+                    - "sts:AssumeRole"
+                  Principal:
+                    Service: 
+                      - ec2.amazonaws.com
+            
+            Policies:
+                - PolicyName: cloudwatchpolicy
+                  PolicyDocument: 
+                    Version: 2012-10-17
+                    Statement:
+                      - Sid: addcloudwatchsreejit
+                        Effect: Allow
+                        Action: cloudwatch:*
+                        Resource: "*"
+                  
+                - PolicyName: s3policy
+                  PolicyDocument:
+                    Version: 2012-10-17
+                    Statement:
+                      - Sid: adds3policysreejit
+                        Effect: Allow
+                        Action: "s3:*"
+                        Resource: !Ref S3BucketArN
+Parameters:
+    S3BucketArN:
+      Description: S3 Bucket ARN
+      Type: String
