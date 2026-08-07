@@ -1,0 +1,8 @@
+Resources:
+  MySnSTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      TopicName: orderprocessing
+      Subscription:
+        - Endpoint: "hellothisissreejit@gmail.com"
+          Protocol: "email"
