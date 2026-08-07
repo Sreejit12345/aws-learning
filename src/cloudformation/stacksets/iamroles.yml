@@ -1,0 +1,47 @@
+# we are going to create 2 IAM roles. 1 admin role and 1 execution role
+
+Resources:
+  iamrolesadmin:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      
+      Policies:
+      - PolicyName: adminpolicy
+        PolicyDocument: 
+          Version: 2012-10-17
+          Statement:
+            - Sid: adminrole
+              Effect: Allow
+              Action: sts:AssumeRole
+              Resource: "arn:aws:iam::*:role/AWSCloudFormationStackSetExecutionRole"
+
+      RoleName: AWSCloudFormationStackSetAdministrationRole
+  
+
+
+  iamrolesexecution:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Ref AWS::AccountId
+            Action:
+              - 'sts:AssumeRole'
+      
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+    
+      RoleName: AWSCloudFormationStackSetExecutionRole
+

@@ -1,0 +1,15 @@
+Resources:
+  Mys3BucketSreejit:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub "sreejitbktcf-${AWS::Region}"
+      Tags:
+        - Key : type
+          Value : cloudformation
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+        
+        
