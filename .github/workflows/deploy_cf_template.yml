@@ -47,12 +47,13 @@ jobs:
                     cd src/cloudformation/deployment
                     for file in *;do
                     if [ -f $file ]; then
-                    echo "Processing: $file"
-                    aws s3 cp $file s3://cloudformationtemplatessreejit/$file
 
                     # convert s3.yml to s3yml to satisfy naming of stacks
-                    
                     clean_name="${file//./}"
+
+                    echo "Processing: $file"
+                    aws s3 cp $file s3://cloudformationtemplatessreejit/$clean_name
+
                     file_array+=("$clean_name")
                     fi
                     done
