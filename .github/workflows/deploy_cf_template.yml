@@ -1,6 +1,13 @@
 # pre requisites- we need to have a s3 bucket provisioned in 'us-east-1' where all templates are uploaded.
 # we assume that its already created and the name is 'cloudformationtemplatessreejit'
 
+
+# https://github.com/aws-actions/aws-cloudformation-github-deploy
+# https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/pass-job-outputs
+# https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations
+# https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations
+
+
 name : deploy-clousformation
 
 on:
@@ -12,32 +19,58 @@ permissions:
     id-token: write
     contents: read
 jobs:
+
     build:
         runs-on: ubuntu-latest
+        outputs:
+            file_array: ${{ steps.Copy-files-to-s3.outputs.file_list }}
 
         steps:
-            - name: checkout-code
+
+            - id: checkout-code
               uses: actions/checkout@v4
         
-            - name: authenticate aws creds
+            - id: authenticate-aws-creds
               uses: aws-actions/configure-aws-credentials@v3
               with:
                 role-to-assume: arn:aws:iam::468094684048:role/deploymentRole
                 aws-region: "us-east-1"
                 role-session-name: SreejitsSession
             
-            - name: Verify
+            - id: Verify
               run: aws sts get-caller-identity
 
-            - name: Copy files to s3
+            - id: Copy-files-to-s3
               run: |
+                    file_array=()
                     echo "${{ github.workspace }}"
                     cd src/cloudformation/deployment
                     for file in *;do
                     if [ -f $file ]; then
                     echo "Processing: $file"
                     aws s3 cp $file s3://cloudformationtemplatessreejit/$file
+                    file_array+=("$file")
                     fi
-                    done 
+                    done
+                    echo "file_list=${file_array[*]}" >> "$GITHUB_OUTPUT"
+    
+    deploy:
+        runs-on: ubuntu-latest
+        needs: build
+        strategy:
+            matrix:
+                file: ${{ fromJSON(needs.build.outputs.file_array) }}
+
+        steps:
+
+            - name: Deploy CloudFormation Stack
+              uses: aws-actions/aws-cloudformation-github-deploy@v2.0.0
+              with:
+                name: ${{ matrix.file }}
+                template: https://cloudformationtemplatessreejit.s3.ap-south-1.amazonaws.com/${{ matrix.file }}
+                fail-on-empty-changeset: false
+
+                
+
 
 
