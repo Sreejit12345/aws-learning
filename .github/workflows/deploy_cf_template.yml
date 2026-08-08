@@ -49,7 +49,11 @@ jobs:
                     if [ -f $file ]; then
                     echo "Processing: $file"
                     aws s3 cp $file s3://cloudformationtemplatessreejit/$file
-                    file_array+=("$file")
+
+                    # convert s3.yml to s3yml to satisfy naming of stacks
+                    
+                    clean_name="${file//./}"
+                    file_array+=("$clean_name")
                     fi
                     done
                     
@@ -79,7 +83,7 @@ jobs:
             - id: Verify
               run: aws sts get-caller-identity
 
-              
+
             - name: Deploy CloudFormation Stack
               uses: aws-actions/aws-cloudformation-github-deploy@v2.0.0
               with:
