@@ -1,0 +1,41 @@
+# pre requisites- we need to have a s3 bucket provisioned in 'us-east-1' where all templates are uploaded.
+# we assume that its already created and the name is 'cloudformationtemplatessreejit'
+
+name : deploy-clousformation
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    id-token: write
+    contents: read
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: checkout-code
+              uses: actions/checkout@v4
+        
+            - name: authenticate aws creds
+              uses: aws-actions/configure-aws-credentials@v3
+              with:
+                role-to-assume: arn:aws:iam::468094684048:role/deploymentRole
+                aws-region: "us-east-1"
+                role-session-name: SreejitsSession
+            
+            - name: Verify
+              run: aws sts get-caller-identity
+
+            - name: Copy files to s3
+              run: |
+                    echo "${{ github.workspace }}"
+                    cd src/cloudformation/deployment
+                    for file in *;do
+                    if [ -f $file ]; then
+                    echo "Processing: $file"
+                    done 
+
+
