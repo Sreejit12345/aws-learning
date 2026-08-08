@@ -19,7 +19,7 @@ jobs:
             - name: authenticate aws creds
               uses: aws-actions/configure-aws-credentials@v3
               with:
-                role_to_assume: arn:aws:iam::468094684048:role/deploymentRole
+                role-to-assume: arn:aws:iam::468094684048:role/deploymentRole
                 aws-region: "us-east-1"
                 role-session-name: SreejitsSession
             
