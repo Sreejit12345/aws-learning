@@ -52,7 +52,13 @@ jobs:
                     file_array+=("$file")
                     fi
                     done
-                    echo "file_list=${file_array[*]}" >> "$GITHUB_OUTPUT"
+                    
+                    # now file_array looks like  :-     stack1.yaml stack2.yaml
+                    # we convert to ["stack1.yaml","stack2.yaml"]
+
+                    JSON_ARRAY=$(printf '"%s",' "${file_array[@]}")
+                    JSON_ARRAY="[${JSON_ARRAY%,}]"
+                    echo "file_list=$JSON_ARRAY" >> "$GITHUB_OUTPUT"
     
     deploy:
         runs-on: ubuntu-latest
