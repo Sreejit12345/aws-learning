@@ -1,0 +1,32 @@
+Resources:
+  # since no subnet is mentioned, it created in any one subnet under VPC
+  sreejitEC2Stack:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-02b64aa047cb5edf5"
+      InstanceType: "t2.nano"
+      KeyName: !Ref sreejitkeypair
+      SecurityGroups: 
+      - !Ref secgroup
+
+  sreejitkeypair:
+    Type: AWS::EC2::KeyPair
+    Properties:
+      KeyFormat: "pem"
+      KeyName: "mykey1"
+      KeyType: "rsa"
+
+  # since, no VPC Id is mentioned, this is created in default VPC
+  secgroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EC2 security group
+      GroupName: mysg1
+      SecurityGroupIngress:
+       - CidrIp : 0.0.0.0/0
+         Description : Allow inbound from all ips to port 22
+         FromPort : 22
+         IpProtocol: tcp
+         ToPort: 22
+        
+ 

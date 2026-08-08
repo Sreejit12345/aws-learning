@@ -1,8 +1,10 @@
 # pre requisites- we need to have a s3 bucket provisioned in 'us-east-1' where all templates are uploaded.
 # we assume that its already created and the name is 'cloudformationtemplatessreejit'
+# make sure the yml file name follows the stack naming rules
 
 
 # https://github.com/aws-actions/aws-cloudformation-github-deploy
+# https://github.com/actions/checkout#checkout-v4
 # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/pass-job-outputs
 # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations
 # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations
