@@ -5,13 +5,24 @@ on:
         branches:
             - main
 
+permissions:
+    id-token: write
+    contents: read
 jobs:
     build:
         runs-on: ubuntu-latest
 
         steps:
-
-            - uses: actions/checkout@v4
-
-            - run : echo "Hi"
+            - name: checkout-code
+              uses: actions/checkout@v4
+        
+            - name: authenticate aws creds
+              uses: aws-actions/configure-aws-credentials@v3
+              with:
+                role_to_assume: arn:aws:iam::468094684048:role/deploymentRole
+                aws-region: "us-east-1"
+                role-session-name: SreejitsSession
+            
+            - name: Verify
+              run: aws sts get-caller-identity   
 
