@@ -1,0 +1,58 @@
+Resources:
+  MyGlueDb:
+    Type:  AWS::Glue::Database
+    Properties:
+      CatalogId:  !Ref AWS::AccountId
+      DatabaseInput:
+        Description: My cf db
+        Name: cfgluedb
+
+  MyGlueCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: cf-crawler-s3
+      RecrawlPolicy:
+        RecrawlBehavior: CRAWL_EVERYTHING
+      Role: !GetAtt IAMROLE.Arn
+      DatabaseName: !Ref MyGlueDb
+      TablePrefix: cf-
+      Targets:
+        S3Targets:
+          - Path: !Sub "s3://${Mys3BucketSreejit}/sourceA/"
+          - Path: !Sub "s3://${Mys3BucketSreejit}/sourceB/"
+        
+
+  IAMROLE:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:    # This defines who can assume this role, in this case lambda can assume this role
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - "glue.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      ManagedPolicyArns: 
+      - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+      - "arn:aws:iam::aws:policy/AmazonS3TablesFullAccess"
+      - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+
+  Mys3BucketSreejit:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: cloudformationsreejitbkt
+      Tags:
+        - Key : type
+          Value : cloudformation
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+    
+
+
+    
+      
