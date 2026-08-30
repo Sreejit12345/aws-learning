@@ -1,0 +1,79 @@
+Resources:
+
+  MyVPC:
+    Type:  AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/24
+  
+  MyPublicSubnet:   #public subnet 
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.0.0/25
+  
+  MyPrivateSubnet:   #private subnet
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.0.128/25
+  
+  MyIG:  #internet gateway
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: type
+          Value: project
+    
+  VPCIGConnection:    #attach Internet gateway to VPC
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyIG
+
+  MyNAtGateway:   #needed for private ip to reach outside. Note this is deployed in public Subnet
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId: !Ref MyPublicSubnet
+      AllocationId: !GetAtt MyElasticIP.AllocationId
+
+  MyElasticIP: #public ip that is to be attached to the NAT gateway
+    Type: AWS::EC2::EIP
+
+
+  MyRouteTablePublic:   #note aws creates a default route table, but we use this new created table for more control
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+  
+  MyRouteTablePrivate:   #note aws creates a default route table, but we use this new created table for more control
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+  
+  
+  RouteTableAssociationPublic:   #associates public subnet from default route table to this one
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MyRouteTablePublic
+      SubnetId: !Ref MyPublicSubnet
+  
+  RouteTableAssociationPrivate:   #associates private subnet from default route table to this one
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MyRouteTablePrivate
+      SubnetId: !Ref MyPrivateSubnet
+
+  RoutetoIG:   #create a route for all outboud ip addresses to internet gateway
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref MyRouteTablePublic
+      DestinationCidrBlock : 0.0.0.0/0
+      GatewayId:
+        !Ref MyIG
+  
+  RoutetoNAT:   #create a route for all outboud ip addresses from private subnet to NAT gateway
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref MyRouteTablePrivate
+      DestinationCidrBlock : 0.0.0.0/0
+      NatGatewayId: !Ref MyNAtGateway
