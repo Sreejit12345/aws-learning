@@ -10,6 +10,7 @@ Resources:
     Properties:
       VpcId: !Ref MyVPC
       CidrBlock: 10.0.0.0/25
+      MapPublicIpOnLaunch: true   #means all resources launched here gets a public ip by default
   
   MyPrivateSubnet:   #private subnet
     Type: AWS::EC2::Subnet

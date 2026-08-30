@@ -2452,3 +2452,5 @@ java.util.concurrent.TimeoutException
 2026.08.30 17:51:54 INFO  Scala CLI started for C:\Users\SREEJIT\OneDrive\Documents\aws-learning
 2026.08.30 17:51:54 WARN  no build tool detected in workspace 'C:\Users\SREEJIT\OneDrive\Documents\aws-learning'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
 2026.08.30 17:51:54 WARN  Build server is not auto-connectable.
+Aug 30, 2026 8:20:26 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
