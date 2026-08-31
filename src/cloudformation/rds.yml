@@ -1,0 +1,35 @@
+#this provisions a RDS mysql in a public subnet
+# make sure to run rds_networking_public_subnets.yml before running this stack, so the vpc and subnets are provisioned
+# the stack that runs before this outputs a subnetId and security group, which is used in this template
+
+Resources:
+  MyRDSSreejit:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: mysql
+      EngineVersion: 8.4.8
+      DBInstanceIdentifier: sreejit1234
+      DBName: sreejit12345
+      MasterUsername: sreejit
+      MasterUserPassword: sreejit123#s2d3
+      MasterUserAuthenticationType: password
+      EnableIAMDatabaseAuthentication: true
+      DBInstanceClass: db.t3.micro
+      DBSubnetGroupName: !Ref MyRdssubnetGroup
+      PubliclyAccessible: true   #this gives rds a public ip, even while deploying to public subnet, this is reqd
+      VPCSecurityGroups:
+        - !ImportValue securitygroupId
+      AllocatedStorage: 20
+  
+  MyRdssubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subet group creation public.
+      SubnetIds:
+        - !ImportValue publicsubnetId1
+        - !ImportValue publicsubnetId2
+
+
+
+
+      

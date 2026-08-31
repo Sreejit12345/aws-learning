@@ -4,13 +4,15 @@ Resources:
     Type:  AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/24
+      EnableDnsHostnames: true   #best practice
+      EnableDnsSupport: true     #best practice
   
   MyPublicSubnet:   #public subnet 
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
       CidrBlock: 10.0.0.0/25
-      MapPublicIpOnLaunch: true   #means all resources launched here gets a public ip by default
+      MapPublicIpOnLaunch: true   #means ec2 instances launched here gets a public ip by default
   
   MyPrivateSubnet:   #private subnet
     Type: AWS::EC2::Subnet

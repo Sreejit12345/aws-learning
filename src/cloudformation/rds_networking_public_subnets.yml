@@ -1,0 +1,101 @@
+#launches 1 vpc , 2 public subnets, 1 Internet gateway attached to vpc, 1 route table with both subnets
+# route for all ip addresses to go to Internet gateway
+
+Resources:
+  MyVPC:
+    Type:  AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      EnableDnsHostnames: true   #best practice
+      EnableDnsSupport: true     #best practice
+  
+  MyPublicSubnet1:   #public subnet 1
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.0.0/25
+      AvailabilityZoneId: aps1-az1
+ 
+  MyPublicSubnet2:   #public subnet 2
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.0.128/25
+      AvailabilityZoneId: aps1-az2
+  
+  MyIG:  #internet gateway
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: type
+          Value: project
+    
+  VPCIGConnection:    #attach Internet gateway to VPC
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyIG
+
+
+  MyRouteTable:   #note aws creates a default route table, but we use this new created table for more control
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+  
+  
+  RouteTableAssociation1:   #associates subnet 1 from default route table to this one
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MyRouteTable
+      SubnetId: !Ref MyPublicSubnet1
+  
+  RouteTableAssociation2:    #associates subnet 2 from default route table to this one
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MyRouteTable
+      SubnetId: !Ref MyPublicSubnet2
+
+  RoutetoIG:   #create a route for all outboud ip addresses to internet gateway
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref MyRouteTable
+      DestinationCidrBlock : 0.0.0.0/0
+      GatewayId:
+        !Ref MyIG
+
+  
+  MySecurityGroup:  #creates a SG
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: sk-group
+      GroupDescription: Security group
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+       - CidrIp: 49.43.235.255/32   #my current wifi laptop id - use curl -4 https://checkip.global.api.aws and do /32 to signify that one only
+         IpProtocol: tcp
+         FromPort: 3306  #mysql uses 3306
+         ToPort: 3306    #mysql uses 3306
+
+
+
+        
+    
+
+Outputs:
+  SubnetId1:
+    Description: first public subnet
+    Value: !Ref MyPublicSubnet1
+    Export: 
+      Name: publicsubnetId1
+  
+  SubnetId2:
+    Description: second public subnet
+    Value: !Ref MyPublicSubnet2
+    Export: 
+      Name: publicsubnetId2
+
+  SecurityGroupId:
+    Description: The name of the SG
+    Value: !Ref MySecurityGroup
+    Export: 
+      Name: securitygroupId
