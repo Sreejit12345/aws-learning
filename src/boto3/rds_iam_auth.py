@@ -1,12 +1,12 @@
 # TO run this we need rds mysql deployed on public subnets and have its security group have an inbound rule to connect from laptop wifi
-# Also post database creation- login from admin master user and create 2 users 'admin' and 'developer'. Grant only select on 'developer', and 
+# Also post database creation- login from admin master user and create 2 databse users 'admin' and 'developer'. Grant only select on 'developer', and 
 # grant all on 'admin'.
 #  We also need 2 policies attached, with action 'rds-db:connect'. dev user policy should only have access to do 'rds-db:connect' on the developer database user.
 # admin user policy should only have access to do 'rds-db:connect' on the admin database user.
 
-# we also configure access keys for both users and set up profile in config.
+# we also configure access keys for both iam users and set up profile in config.
 
-# essentially users/groups who have 'rds-db:connect' on that specific database user, will be able to raise token and authenticate to that db user
+# essentially iam users/groups who have 'rds-db:connect' on that specific database user, will be able to raise token and authenticate to that db user
 
 
 
