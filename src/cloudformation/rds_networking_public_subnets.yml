@@ -99,3 +99,9 @@ Outputs:
     Value: !Ref MySecurityGroup
     Export: 
       Name: securitygroupId
+  
+  vpcId:
+    Description: vpc id
+    Value: !Ref MyVPC
+    Export: 
+      Name: vpcid

@@ -1,0 +1,54 @@
+# this provisions the lambda that will be used to access private rds subnet, run "rds pvtsubnet.yml" before this
+
+# note this lambda is deployed in pvt subnet, same as rds.
+Resources:
+  MyLambdaFn:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+                    print("hello normal lambda")
+                    print("replace with actual code")
+                    
+      Description: Orchestrator durable lambda
+      Role: !GetAtt IAMROLE.Arn
+      FunctionName: rdslambdapvtsubnet
+      Runtime: python3.14
+      # If we deploy via inline code then we should put index.function_name, as the inline code is put into index.py
+      Handler: index.lambda_handler
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue securitygroupIdlambda
+        SubnetIds:
+          - !ImportValue privatesubnetId1
+          - !ImportValue privatesubnetId2
+
+
+  IAMROLE:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:    # This defines who can assume this role, in this case lambda can assume this role
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      ManagedPolicyArns: 
+      - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+      - "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"  #if lambda is deployed in pvt subnet we need this role
+
+  GatewayEndpointS3:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !ImportValue vpicid
+      VpcEndpointType: Gateway
+      IpAddressType: ipv4
+      RouteTableIds :
+       - !ImportValue routeTableId
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3' #using psedo parameter for region
+

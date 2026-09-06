@@ -1,0 +1,103 @@
+#launches 1 vpc , 2 private subnets, 1 route table with both subnets
+# it also creates 1 SG for lambda and 1 SG for RDS
+# SG for rds allows inbound on 3306 port from lambda SG
+
+Resources:
+  MyVPC:
+    Type:  AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      EnableDnsHostnames: true   #best practice
+      EnableDnsSupport: true     #best practice
+  
+  MyPrivateSubnet1:   #private subnet 1
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.0.0/25
+      AvailabilityZoneId: aps1-az1
+ 
+  MyPrivateSubnet2:   #private subnet 2
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.0.128/25
+      AvailabilityZoneId: aps1-az2
+  
+
+  MyRouteTable:   #note aws creates a default route table, but we use this new created table for more control
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+  
+  
+  RouteTableAssociation1:   #associates subnet 1 from default route table to this one
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MyRouteTable
+      SubnetId: !Ref MyPrivateSubnet1
+  
+  RouteTableAssociation2:    #associates subnet 2 from default route table to this one
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MyRouteTable
+      SubnetId: !Ref MyPrivateSubnet2
+
+  MySecurityGroup:  #creates a SG for rds
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: sk-group
+      GroupDescription: Security group
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+       - SourceSecurityGroupId: !Ref MyLambdaSecurityGroup  #allows lambda SG inboud connection to RDS for mysql port
+         IpProtocol: tcp
+         FromPort: 3306  #mysql uses 3306
+         ToPort: 3306    #mysql uses 3306
+    DependsOn: MyLambdaSecurityGroup
+
+
+  MyLambdaSecurityGroup:  #creates a SG which is to be attached to lambda , lambda only outbound ruls are important, which is allow all by default
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: sk-group-lambda
+      GroupDescription: Security group
+      VpcId: !Ref MyVPC
+
+
+Outputs:
+  SubnetId1:
+    Description: first public subnet
+    Value: !Ref MyPrivateSubnet1
+    Export: 
+      Name: privatesubnetId1
+  
+  SubnetId2:
+    Description: second public subnet
+    Value: !Ref MyPrivateSubnet2
+    Export: 
+      Name: privatesubnetId2
+
+  SecurityGroupId:
+    Description: The name of the SG
+    Value: !Ref MySecurityGroup
+    Export: 
+      Name: securitygroupId
+  
+  SecurityGroupIdlambda:
+    Description: The name of the SG for lambda
+    Value: !Ref MyLambdaSecurityGroup
+    Export: 
+      Name: securitygroupIdlambda
+  
+  vpcId:
+    Description: VPC Id
+    Value: !Ref MyVPC
+    Export: 
+      Name: vpicid
+  
+  routeTableId:
+    Description: route table
+    Value: !Ref MyRouteTable
+    Export: 
+      Name: routeTableId
