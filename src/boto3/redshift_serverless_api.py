@@ -92,8 +92,10 @@ def list_databases(client):
     return all_databases
 
 def run_sql(client,sql_queries):
+
+    # remember the table is created by the database user corresponding to the iam role this lambda runs on
     
-    # this runs async so we need to check back the status
+    # this runs async so we need to check back the status by polling.
 
     resp= client.batch_execute_statement(
         Sqls=sql_queries,
