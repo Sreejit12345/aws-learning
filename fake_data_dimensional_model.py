@@ -12,6 +12,7 @@ order_status      STRING
 order_amount      DECIMAL(10,2)     
 order_ts          TIMESTAMP
 updated_ts        TIMESTAMP     #remember right now when updates happen for an order this field also gets updated which is not correct, we should make sure we preserve first value in silver or gold layer
+extract_date      DATE
 '''
 
 # customers schema
@@ -20,6 +21,7 @@ updated_ts        TIMESTAMP     #remember right now when updates happen for an o
 customer_id       STRING
 customer_name     STRING
 updated_ts        TIMESTAMP
+extract_date      DATE
 '''
 
 
@@ -53,6 +55,9 @@ if(__name__=='__main__'):
         # generates sample rows and dedups on order_id. This is the entire data for 1 partition
 
         cust_upper_limit=max(run_configs['customer_id_range'])
+        extract_date=run_configs['extract_date']
+
+        date_object = datetime.datetime.strptime(extract_date, "%Y-%m-%d")
 
         data= {
             'order_id':[ 'ORD-'+ str(i) for i in run_configs['order_id_range']],
@@ -61,6 +66,7 @@ if(__name__=='__main__'):
             'order_amount':[random.random() *100 for i in run_configs['order_id_range']],
             'order_ts':[datetime.datetime.now() for i in run_configs['order_id_range']],
             'updated_ts':[datetime.datetime.now() for i in run_configs['order_id_range']],
+            'extract_date' : [date_object for i in run_configs['order_id_range']],
             }
 
         df=pd.DataFrame(data)
@@ -74,10 +80,15 @@ if(__name__=='__main__'):
     def generate_customers_for_one_partiiton(run_configs):
         # generates customers.
 
+        extract_date=run_configs['extract_date']
+        date_object = datetime.datetime.strptime(extract_date, "%Y-%m-%d")
+        
+
         data={
         'customer_id' :['CUST-'+ str(i) for i in run_configs['customer_id_range']],
         'customer_name': [Faker().name() for i in run_configs['customer_id_range']],
-        'updated_ts':[datetime.datetime.now() for i in run_configs['customer_id_range']]
+        'updated_ts':[datetime.datetime.now() for i in run_configs['customer_id_range']],
+        'extract_date' : [date_object for i in run_configs['customer_id_range']]
         }
 
         df=pd.DataFrame(data)
