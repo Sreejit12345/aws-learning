@@ -206,6 +206,27 @@ This creates a fact table that reflects the latest state of each order and flags
 >
 > The historical lookup should not filter on `c.is_latest = true`, because older orders may need an expired customer dimension version.
 
+### Example customer order totals
+
+For the current incremental design, join the fact table to the dimension using the stored surrogate key. This preserves the customer version assigned to each order:
+
+```sql
+SELECT
+  c.customer_id,
+  c.customer_name,
+  SUM(o.order_amount) AS total_order_amount
+FROM orders o
+JOIN customers c
+  ON o.customer_sk = c.customer_sk
+GROUP BY
+  c.customer_id,
+  c.customer_name
+ORDER BY
+  c.customer_id;
+```
+ 
+ Grouping by `customer_name` can produce separate rows when a customer's name changed; group by `customer_id` when totals across all customer versions are required.
+
 ---
 
 ## AWS setup assumptions
