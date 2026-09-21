@@ -191,8 +191,8 @@ if(__name__=='__main__'):
     #second load -  10 overlapping orders(updates) and 10 new orders(inserts) / cust 1-50 gets updated and 51- 60 are new
 
 
-    perform_extraction("inital_load")
-    #perform_extraction("second_load")
+    #perform_extraction("inital_load")
+    perform_extraction("second_load")
     #perform_extraction("third_load")
 
         
