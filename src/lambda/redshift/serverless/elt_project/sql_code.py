@@ -181,7 +181,7 @@ create_scd2_sql="""
                     customers_staging.customer_name,
                     customers_staging.updated_ts,
                     customers_staging.extract_date,
-                    curr_time,
+                    curr_time,  -- we can also use a very early date to make sure all business dates match at least 1 row
                     '2099-12-31 23:59:59'::TIMESTAMP,
                     true
                     );
