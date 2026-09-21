@@ -193,6 +193,19 @@ After the staged data is loaded for the previous date’s partition, the `stage_
 
 This creates a fact table that reflects the latest state of each order and flags updates using `is_updated`.
 
+> **SCD2 surrogate key note:** The current `is_latest = true` lookup is correct for this incremental design. Each batch either inserts a new order or updates an existing order, and both cases should use the customer's latest surrogate key.
+>
+> If the pipeline is changed to perform a full historical load, where all partitions are read and reprocessed, the lookup in `#keychange` must be point-in-time instead. This preserves the customer SK that was valid when each order occurred:
+>
+> ```sql
+> JOIN customers c
+>   ON o.customer_id = c.customer_id
+>  AND o.order_ts >= c.start_timestamp
+>  AND o.order_ts < c.end_timestamp
+> ```
+>
+> The historical lookup should not filter on `c.is_latest = true`, because older orders may need an expired customer dimension version.
+
 ---
 
 ## AWS setup assumptions
