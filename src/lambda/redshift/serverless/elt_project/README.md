@@ -11,6 +11,7 @@ It includes:
 
 ---
 
+
 ## What this project is doing
 
 The flow is meant to mirror a simple data warehouse pattern:
@@ -35,11 +36,11 @@ The customer source is a full snapshot for each batch, but that does not make th
 To support a true full historical load, the following changes are required:
 
 - Read and process all source partitions in chronological order.
-- Deduplicate each partition and define how repeated `order_id` and `customer_id` records are selected before running `MERGE`. A full set of partitions contains duplicate business keys.
+- Deduplicate each partition and define how repeated `order_id` and `customer_id` records are selected before running `MERGE`. A full set of partitions contains duplicate business keys. We need to dedup across all partitions.
 - Change the fact model if order history must be preserved. The current `orders` table has one row per `order_id` and represents the latest order state; it cannot store multiple historical versions of one order.
 - Use reliable source-effective timestamps for customer SCD2 intervals. The point-in-time lookup must use a predicate such as `order_ts >= start_timestamp` and `order_ts < end_timestamp`, without filtering on `is_latest`.
-- Make the first customer version start at an appropriate business date and ensure every subsequent interval is contiguous and non-overlapping. Using `1900-01-01` is only valid when the customer is known to have existed from that date.
-- Make the load idempotent and protect against older partitions overwriting newer order versions by comparing source and target `updated_ts` values.
+- Make the first customer version start at a very early appropriate business date and ensure every subsequent interval is contiguous and non-overlapping. Using `1900-01-01` is  valid when the customer is known to have existed from that date.
+
 
 ---
 
