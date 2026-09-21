@@ -10,8 +10,8 @@ order_id          STRING
 customer_id       STRING
 order_status      STRING
 order_amount      DECIMAL(10,2)     
-order_ts          TIMESTAMP
-updated_ts        TIMESTAMP     #remember right now when updates happen for an order this field also gets updated which is not correct, we should make sure we preserve first value in silver or gold layer
+order_ts          TIMESTAMP   #remember right now when updates happen for an order this field also gets updated which is not correct, we should make sure we preserve first value in silver or gold layer
+updated_ts        TIMESTAMP    
 extract_date      DATE
 '''
 
