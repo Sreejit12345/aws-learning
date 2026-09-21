@@ -1,7 +1,7 @@
 import json
 import boto3
 import time
-import os
+import datetime
 from sql_code import * # this import sql code
 
 # https://docs.aws.amazon.com/boto3/latest/reference/services/redshift-data.html
@@ -30,12 +30,15 @@ from sql_code import * # this import sql code
 # any aws account
 
 # Remember our source is coming from 'fake_data_dimensional_model.py'. THis is the data producer that produces parquet
-#  
+# Also we pass a variable run_date, "run_date", in the lambda trigger event.
+# This is the date of the batch pipeline run, for run_date x we read x-1 partitions from s3, so we must make sure this is available, do this by running producer script.
+# so for run_date=2026-09-20, we read from s3 partitions 2026-09-19. This is the date of the data in s3. The run_date is passed as an env variable to the lambda function.
 
 def lambda_handler(event, context):
 
+    env_run_date=event['run_date']  # this is the date of the run, we will read from s3 partition of run_date-1
 
-    query_status_copy_stg=copy_to_staging() #copy from s3 partition to staging tables, trucnate load
+    query_status_copy_stg=copy_to_staging(env_run_date) #copy from s3 partition to staging tables, trucnate load
 
     if(query_status_copy_stg=="FINISHED"):
 
@@ -79,7 +82,10 @@ def run_sql(client,sql_queries):
 
     return status['Status']
 
-def copy_to_staging():
+def copy_to_staging(run_date):
+
+    parsed_run_date = datetime.datetime.strptime(run_date, "%Y-%m-%d").date()
+    read_date = (parsed_run_date - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
 
     client=get_redshift_api()
 
@@ -90,8 +96,8 @@ def copy_to_staging():
                             create_customers_stg_table_sql,
                             truncate_orders_stg_table_sql,
                             truncate_customers_stg_table_sql,
-                            copy_orders_stg_table_sql,
-                            copy_customers_stg_table_sql
+                            copy_orders_stg_table_sql.format(run_date=read_date),
+                            copy_customers_stg_table_sql.format(run_date=read_date)
                         ]
                         )
 

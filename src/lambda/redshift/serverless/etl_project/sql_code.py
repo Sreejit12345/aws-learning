@@ -26,17 +26,17 @@ truncate_orders_stg_table_sql="truncate table dev.public.orders_staging"
 truncate_customers_stg_table_sql="truncate table dev.public.customers_staging"
 
 
-copy_orders_stg_table_sql=f"""
+copy_orders_stg_table_sql="""
     COPY dev.public.orders_staging
-    from 's3://arshisreejitlove/orders/extract_date=2026-09-19/'
+    from 's3://arshisreejitlove/orders/extract_date={run_date}/'
     iam_role 'arn:aws:iam::468094684048:role/sreejitroleredshift'
     region 'us-east-1'
     format as parquet;
     """
 
-copy_customers_stg_table_sql=f"""
+copy_customers_stg_table_sql="""
     COPY dev.public.customers_staging
-    from 's3://arshisreejitlove/customers_snapshot/extract_date=2026-09-19/'
+    from 's3://arshisreejitlove/customers_snapshot/extract_date={run_date}/'
     iam_role 'arn:aws:iam::468094684048:role/sreejitroleredshift'
     region 'us-east-1'
     format as parquet;
