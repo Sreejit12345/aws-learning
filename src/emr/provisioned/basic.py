@@ -2,7 +2,13 @@
 # spark-submit --deploy-mode client --master yarn basic.py
 # spark-submit --deploy-mode cluster --master yarn basic.py
 
+'''
+aws emr add-steps \
+  --cluster-id j-03163421NSYHI3NU5X4V \
+  -zSreejit,ActionOnFailure=CONTINUE,Jar=command-runner.jar,Args=[spark-submit,--deploy-mode,cluster,s3=command-runner.jar,Args=[spark-submit,--deploy-mode,cluster,s3://sreejits-bucket/spark-code/basic.py']
 
+
+'''
 
 from pyspark.sql import SparkSession
 
