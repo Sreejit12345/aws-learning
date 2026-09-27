@@ -8,6 +8,12 @@
 
 # If you use Amazon EMR releases 7.0.0 or higher, use /usr/share/aws/delta/lib/delta-spark.jar instead of /usr/share/aws/delta/lib/delta-core.jar.
 
+
+# remeber this is under the default aws glue catalog created with name as accountId.
+# # spark_catalog has a pointer to the default AWS account ID glue catalog, so all databases and tables get populated under that.
+
+
+#paste below line to use delta specific jars.
 '''
 --conf “spark.jars=/usr/share/aws/delta/lib/delta-spark.jar,
      /usr/share/aws/delta/lib/delta-storage.jar,
