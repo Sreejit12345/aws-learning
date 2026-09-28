@@ -1,13 +1,13 @@
 // https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-iceberg-use-spark-cluster.html
 
-// This is not using the cluster porperties so we need to mention this JAR, to make sure iceberg specific jar are imported
+// This is not using the cluster properties so we need to mention the below JAR, to make sure iceberg specific jar are imported in cluster
 //--conf spark.jars=/usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar
 
 // sample spark submit
 
 // spark-submit --deploy-mode client --class nonManagedIceberg --conf spark.jars=/usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar s3://sreejits-bucket/spark-code/basicSparkScala-assembly-0.1.0-SNAPSHOT.jar
 
-// also remembet to match scala spark version while compiling with emr cluster versions
+// automatically catalogs table in glue catalog
 
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
@@ -28,9 +28,19 @@ object nonManagedIceberg extends App {
 
 
   def generateDf():org.apache.spark.sql.DataFrame={
-    val df =spark.range(1,100)
 
-    df.withColumn("id",(rand()* col("id")).cast("int"))
+    var randomVal = scala.util.Random.nextInt(100)
+
+    if(randomVal<=0){
+
+      randomVal=1
+
+    }
+
+
+    val df =spark.range(1,randomVal)
+
+    df.withColumn("id",col("id").cast("int"))
       .withColumn("isUpdated",lit("NO"))
 
   }
