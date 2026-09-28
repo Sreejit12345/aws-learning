@@ -1,5 +1,5 @@
 // https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-iceberg-use-spark-cluster.html
-
+// // need to compile this as a jar and upload compiled jar to s3.
 // This is not using the cluster properties so we need to mention the below JAR, to make sure iceberg specific jar are imported in cluster
 //--conf spark.jars=/usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar
 
