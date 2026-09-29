@@ -3,6 +3,10 @@
 // This is not using the cluster properties so we need to mention the below JAR, to make sure iceberg specific jar are imported in cluster
 //--conf spark.jars=/usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar
 
+
+// note this is not managed iceberg (s3 tables)
+
+
 // sample spark submit
 
 // spark-submit --deploy-mode client --class nonManagedIceberg --conf spark.jars=/usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar s3://sreejits-bucket/spark-code/basicSparkScala-assembly-0.1.0-SNAPSHOT.jar
