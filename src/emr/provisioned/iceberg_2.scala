@@ -1,6 +1,6 @@
 // https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-iceberg-use-spark-cluster.html
 
-// This already uses the cluster defaults for iceberg so no need to mention jar on conf in spark submit
+// This already uses the cluster defaults for iceberg so no need to mention iceberg jar on conf in spark submit
 
 
 // note this is not managed iceberg (s3 tables)
