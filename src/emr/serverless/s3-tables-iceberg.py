@@ -6,23 +6,45 @@
 
 
 #this code works eactly same as provisioned EMR. In fact all other code present under provisioned works exactly the same.
+# just there is no need to explicityly mention icebeg defaults or iceberg JARS in EMR serverless.
 
 # just remember- if we run this serverless EMR app in a default VPC - it wont have access to S3tables
 # either run in a VPC with a public subnet- or a private subnet with s3tables endpoints along with other endpoints/ NAT gateway.
 
 
-# add this in application configuration in the serverless application settings. This enables iceberg JAR.
-
-# emeber this uses a Amazon S3 Tables Catalog  to connect to s3Tables.
-
-'''
-[{
-"Classification":"iceberg-defaults",
-"Properties":{"iceberg.enabled":"true"}
-}]
-'''
-
 # s3tablesbucket.sreejits3managed.check23   -- refer to table, remember  s3tablesbucket catalog points to s3 table bucket in spark conf
+
+# remember this uses a Amazon S3 Tables Catalog  to connect to s3Tables. If needed we can also use REST catalog.
+
+'''
+
+aws emr-serverless create-application \
+  --name sreejit-app \
+  --release-label emr-spark-8.0.0 \
+  --type Spark \
+  --network-configuration '{
+    "subnetIds": ["subnet-0e16660224c185450", "subnet-0050fe20b601fd62f"],
+    "securityGroupIds": ["sg-07f39c27787d1853c"]
+  }' \
+  --maximum-capacity '{
+    "cpu": "100 vCPU",
+    "memory": "100 GB",
+    "disk": "100 GB"
+  }' --region ap-south-1
+
+'''
+
+'''
+aws emr-serverless start-job-run \
+  --application-id "00g983cjejt5dm1t" \
+  --execution-role-arn "arn:aws:iam::468094684048:role/sreejit-emr-serverless" \
+  --name "my-spark-job" \
+  --job-driver '{
+    "sparkSubmit": {
+      "entryPoint": "s3://sreejits-bucket/spark-code/s3-tables-iceberg.py", 
+      "sparkSubmitParameters": "--conf spark.dynamicAllocation.enabled=false --conf spark.driver.cores=1 --conf spark.executor.cores=1 --conf spark.executor.memory=4g --conf spark.executor.instances=1 --conf spark.driver.memory=4g --conf spark.hadoop.hive.metastore.client.factory.class=com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
+
+'''
 
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf

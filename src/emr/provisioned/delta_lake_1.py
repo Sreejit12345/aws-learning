@@ -1,5 +1,5 @@
 # We are going to read delta tables from glue catalog and then write to glue catalog
-# If EMR is deployed on a public subnet (rote to IG exists)- the EMR service role must have glueServiceRole attached for this to work
+# If EMR is deployed on a public subnet (rote to IG exists)- the EMR service role must have glueServiceRole attached for this to work. Else we need vpc endpoints or NAT gateway
 # remeber to enable "use glue catalog fo spark" during cluster creation.
 
 # I am using emr 7.14.0- so delta jar is already pre-installed . https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-release-app-versions-7.x.html

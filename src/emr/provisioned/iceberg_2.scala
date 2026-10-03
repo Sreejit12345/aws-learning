@@ -2,6 +2,8 @@
 
 // This already uses the cluster defaults for iceberg so no need to mention iceberg jar on conf in spark submit
 
+// need to compile this as a jar and upload compiled jar to s3.
+// Configure scala sbt project in intelliJIdea and put the jar there- no need to include dependencies, since its included on EMR
 
 // note this is not managed iceberg (s3 tables)
 
@@ -20,11 +22,11 @@ object nonManagedIceberg extends App {
 
   val conf = new SparkConf()
 
-  conf.set("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
-  conf.set("spark.sql.catalog.emr_catalog", "org.apache.iceberg.spark.SparkCatalog")
-  conf.set("spark.sql.catalog.emr_catalog.warehouse", "s3://iceberg-demo123/warehouse/")
-  conf.set("spark.sql.catalog.emr_catalog.catalog-impl", "org.apache.iceberg.aws.glue.GlueCatalog")
-  conf.set("spark.sql.catalog.emr_catalog.io", "org.apache.iceberg.aws.s3.S3FileIO")
+    conf.set("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
+    conf.set("spark.sql.catalog.emr_catalog", "org.apache.iceberg.spark.SparkCatalog")
+    conf.set("spark.sql.catalog.emr_catalog.warehouse", "s3://iceberg-demo123/warehouse/")
+    conf.set("spark.sql.catalog.emr_catalog.catalog-impl", "org.apache.iceberg.aws.glue.GlueCatalog")
+    conf.set("spark.sql.catalog.emr_catalog.io", "org.apache.iceberg.aws.s3.S3FileIO")
 
   val spark = SparkSession.builder().appName("iceberg").config(conf).getOrCreate()
 
