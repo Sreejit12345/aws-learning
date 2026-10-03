@@ -19,6 +19,8 @@ create database if not exists s3_rest_catalog.manageds3tables. This actually cre
 
 to refer to tables use: "s3_rest_catalog".<dbName>.<tableName>
 
+Remeber this uses a REST catalog to connect to s3Tables.
+
 */
 
 object spark_obj {
