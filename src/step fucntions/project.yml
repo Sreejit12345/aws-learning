@@ -1,18 +1,17 @@
-# Creates 2 s3 buckets, 1 lambda function without any code, 1 IAM role, 1 SNS topic.
+# Creates 2 s3 buckets, 1 lambda function without any code, 1 IAM role, 1 SNS topic. Make sube to accept the SNS subscription over email.
 # 1 glue job with dummy location for pyspark script location.
 
 # post creation do the following:
 
-# 1) copy paste code in "src/step fucntions/lambda_handler.py" and replace in lambda function from console. In reality we should have cicd to do this.
+# 1) copy paste code in "src/step fucntions/lambda_handler.py" and replace in lambda function "fileprocessorlambda" from console.
 # 2) create 1 folder in "s3bronzestepfucntionsdemo" named "spark_code" and upload file "glue_code.py" present in "src/step fucntions/glue_code.py"
 # 3) create 1 folder in "s3bronzestepfucntionsdemo" named "user_input".
 # 4) Create a step function named "fileProcessor" from console. With no steps. This would be updated later.
-
-# 5) Enable "Amazon EventBridge notifications" for s3 event notifications. This sends events to the "default" event bus in that region.
-# 6) Create a rule under the "default" event bus that sends events from s3 bucket "s3bronzestepfucntionsdemo" to step fucntion "fileProcessor". Make sure to target specific bucket and prefix to trigger rule.
-# 6) Upload file "sample_data_1000.csv" present in 'src/step fucntions/sample_data_1000.csv'
-
-# This is the project setup - execpt for the step function part
+# 5) Create a rule under the "default" event bus that sends events from s3 bucket "s3bronzestepfucntionsdemo" to step function "fileProcessor". Make sure to target specific bucket and prefix to trigger rule.
+# 6) Update the step function from console via UI drag and drop- the fucntion code is present in "src/step fucntions/step_function_code.json". We can also directly update code from json in repo.
+# 7) Upload file "sample_data_1000.csv" present in 'src/step fucntions/sample_data_1000.csv'. This triggers the flow, observe the o/p.
+# 8) Tweak file and see the merge happening via glue code in glue catalog.
+# 9) To view data via Athena- create a folder "athena_output" in "s3bronzestepfucntionsdemo" and save that location in athena.
 
 Resources:
   S3bucketbronze:
@@ -27,6 +26,9 @@ Resources:
         BlockPublicPolicy: false
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true # sends s3 events to "default" event bus in that region.
   
   S3bucketgold:
     Type: 'AWS::S3::Bucket'
@@ -87,6 +89,7 @@ Resources:
       Subscription:
         - Endpoint: "hellothisissreejit@gmail.com"
           Protocol: "email"
+      TopicName: a-SNSNotification-r2WBwVoGP9sr
 
   MyPysparkGlue:
     Type: AWS::Glue::Job
@@ -102,3 +105,4 @@ Resources:
       DefaultArguments:
         "--datalake-formats": "delta"
         "--enable-glue-datacatalog": "true"
+        "--job-language": "python"

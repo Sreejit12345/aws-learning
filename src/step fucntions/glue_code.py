@@ -46,42 +46,42 @@ idf= spark.read.format("csv").option("header",True).schema(schema).\
     option("path",s3_path).load()
 
 
-spark.sql("create database if not exists stepFunctions")
+spark.sql("create database if not exists stepfunctions")
 
-all_tables=spark.sql("SHOW TABLES IN stepFunctions").collect()
+all_tables=spark.sql("SHOW TABLES IN stepfunctions").collect()
 
 table_exists=False
 
 for i in all_tables:
-    if(i['namespace']=='stepFunctions' and i['tableName']=='stepFunctionTable' and i['isTemporary']==False):
+    if(i['namespace']=='stepfunctions' and i['tableName']=='stepfunctiontable' and i['isTemporary']==False):
         table_exists=True
 
 if(table_exists==False):
 
     idf.write.format("delta").mode("append").\
-        option('path',"s3://s3goldstepfucntionsdemo/stepFunctionTable/").\
-        saveAsTable("stepFunctions.stepFunctionTable")
+        option('path',"s3://s3goldstepfucntionsdemo/stepfunctiontable/").\
+        saveAsTable("stepfunctions.stepfunctiontable")
 
 else:
 
-    exisitng_df= DeltaTable.forName(spark,"stepFunctions.stepFunctionTable")
+    exisitng_df= DeltaTable.forName(spark,"stepfunctions.stepfunctiontable")
 
     exisitng_df.alias("e").merge(
     idf.alias("i"),
     'e.name = i.name') \
      .whenMatchedUpdate(set =
     {
-      "e.age": "i.age",
-      "e.email": "i.email",
-      "e.is_active": "i.is_active",
+      "age": "i.age",
+      "email": "i.email",
+      "is_active": "i.is_active",
     }
   ) \
   .whenNotMatchedInsert(values =
     {
-      "e.name": "i.name",
-      "e.age": "i.age",
-      "e.email": "i.email",
-      "e.is_active": "i.is_active",
+      "name": "i.name",
+      "age": "i.age",
+      "email": "i.email",
+      "is_active": "i.is_active",
     }
   ) \
   .execute()
