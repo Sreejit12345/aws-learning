@@ -15,7 +15,6 @@ def lambda_handler(event, context):
     resp=s3_client.get_object(Bucket=bucket,Key=key)
 
     df = pd.read_csv(io.BytesIO(resp['Body'].read()), nrows=10)
-
     schema_validation= validate_schema(df,EXPECTED_COLS)
 
     try:
@@ -30,6 +29,8 @@ def lambda_handler(event, context):
             output=json.dumps(data)
             )
 
+        return json.dumps(data)
+
     except Exception as e:
              
              sfn_client.send_task_failure(
@@ -37,8 +38,14 @@ def lambda_handler(event, context):
                     error="SomeError",
                     cause=str(e)
                     )
-    
 
+             data ={
+            "schema_validation_result": None,
+            "bucket": None,
+            "key": None
+            }
+             return json.dumps(data)
+            
 
 EXPECTED_COLS = {
     "name": "str",
