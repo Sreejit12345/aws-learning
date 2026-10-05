@@ -1,0 +1,101 @@
+# Creates 2 s3 buckets, 1 lambda function without any code, 1 IAM role, 1 SNS topic.
+# 1 glue job with dummy location for pyspark script location.
+
+# post creation do the following:
+
+# 1) copy paste code in "src/step fucntions/lambda_handler.py" and replace in lambda function from console. In reality we should have cicd to do this.
+# 2) create 1 folder in "s3bronzestepfucntionsdemo" named "spark_code" and upload file "glue_code.py" present in "src/step fucntions/glue_code.py"
+# 3) create 1 folder in "s3bronzestepfucntionsdemo" named "user_input".
+# 4) Create a step function named "fileProcessor" from console. With no steps. This would be updated later.
+
+# 5) Enable "Amazon EventBridge notifications" for s3 event notifications. This sends events to the "default" event bus in that region.
+# 6) Create a rule under the "default" event bus that sends events from s3 bucket "s3bronzestepfucntionsdemo" to step fucntion "fileProcessor". Make sure to target specific bucket and prefix to trigger rule.
+# 6) Upload file "sample_data_1000.csv" present in 'src/step fucntions/sample_data_1000.csv'
+
+# This is the project setup - execpt for the step function part
+
+Resources:
+  S3bucketbronze:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: s3bronzestepfucntionsdemo
+      Tags:
+        - Key : type
+          Value : cloudformation
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  
+  S3bucketgold:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: s3goldstepfucntionsdemo
+      Tags:
+        - Key : type
+          Value : cloudformation
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  
+  NormalLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+                    print("hello normal lambda")
+                    print("replace with actual code")
+      Description: Orchestrator durable lambda
+      Role: !GetAtt IAMROLE.Arn
+      FunctionName: fileprocessorlambda
+      Runtime: python3.12
+      Layers:
+        - arn:aws:lambda:ap-southeast-1:770693421928:layer:Klayers-p312-pandas:17
+      # If we deploy via inline code then we should put index.function_name, as the inline code is put into index.py
+      Handler: index.lambda_handler
+      Timeout: 600
+
+  
+  IAMROLE:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:    # This defines who can assume this role, in this case lambda can assume this role
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - "lambda.amazonaws.com"
+                - "glue.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      ManagedPolicyArns: 
+      - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+      - "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+      - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
+
+  
+  SNSNotification:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: emailNotifier
+      Subscription:
+        - Endpoint: "hellothisissreejit@gmail.com"
+          Protocol: "email"
+
+  MyPysparkGlue:
+    Type: AWS::Glue::Job
+    Properties:
+      Role: !GetAtt IAMROLE.Arn
+      Command:
+        Name: glueetl
+        ScriptLocation: s3://s3bronzestepfucntionsdemo/spark_code/glue_code.py
+      Name: PysparkFileProcessor
+      JobMode : SCRIPT
+      WorkerType : G.1X
+      NumberOfWorkers: 2
