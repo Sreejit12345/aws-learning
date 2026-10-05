@@ -98,4 +98,7 @@ Resources:
       Name: PysparkFileProcessor
       JobMode : SCRIPT
       WorkerType : G.1X
-      NumberOfWorkers: 2
+      NumberOfWorkers: 3
+      DefaultArguments:
+        "--datalake-formats": "delta"
+        "--enable-glue-datacatalog": "true"

@@ -8,7 +8,6 @@ import json
 def lambda_handler(event, context):
 
     s3_client = boto3.client('s3')
-    sfn_client = boto3.client('stepfunctions')
 
     bucket= event['original_ip']['bucket']
     key= event['original_ip']['key']
@@ -24,27 +23,17 @@ def lambda_handler(event, context):
             "key": key
         }
 
-        sfn_client.send_task_success(
-            taskToken=event.get('MyTaskToken'),
-            output=json.dumps(data)
-            )
 
-        return json.dumps(data)
+        return data
 
     except Exception as e:
              
-             sfn_client.send_task_failure(
-                  taskToken=event.get('MyTaskToken'),
-                    error="SomeError",
-                    cause=str(e)
-                    )
-
              data ={
             "schema_validation_result": None,
             "bucket": None,
             "key": None
             }
-             return json.dumps(data)
+             return data
             
 
 EXPECTED_COLS = {
