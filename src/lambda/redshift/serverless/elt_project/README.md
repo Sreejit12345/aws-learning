@@ -9,8 +9,21 @@ It includes:
 - staging tables for raw ingestion
 - SCD Type 1 and SCD Type 2 logic for the final warehouse tables
 
----
+## Architecture overview
 
+```mermaid
+flowchart LR
+    A[Data generator] --> B[S3 raw landing zone]
+    B --> C[Lambda orchestration]
+    C --> D[Redshift staging tables]
+    D --> E[Transform / merge logic]
+    E --> F[orders fact table]
+    E --> G[customers dimension table]
+    G --> H[SCD Type 2 history]
+    F --> I[Current order state]
+```
+
+---
 
 ## What this project is doing
 
