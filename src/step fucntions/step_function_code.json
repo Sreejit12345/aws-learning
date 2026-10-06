@@ -1,0 +1,100 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Pass",
+  "States": {
+    "Pass": {
+      "Type": "Pass",
+      "Parameters": {
+        "bucket.$": "$.detail.bucket.name",
+        "key.$": "$.detail.object.key"
+      },
+      "Next": "Lambda Invoke"
+    },
+    "Lambda Invoke": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:ap-southeast-1:468094684048:function:fileprocessorlambda:$LATEST",
+        "Payload": {
+          "original_ip.$": "$"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "Choice"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "SNS Publish",
+          "Variable": "$.schema_validation_result",
+          "BooleanEquals": true
+        }
+      ],
+      "Default": "SNS Publish (1)",
+      "InputPath": "$.Payload"
+    },
+    "SNS Publish": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:ap-southeast-1:468094684048:a-SNSNotification-r2WBwVoGP9sr",
+        "Message": {
+          "message": "Schema looks good!"
+        }
+      },
+      "ResultPath": null,
+      "Next": "Glue StartJobRun"
+    },
+    "Glue StartJobRun": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "PysparkFileProcessor",
+        "Arguments": {
+          "--bucket.$": "$.bucket",
+          "--key.$": "$.key"
+        }
+      },
+      "Next": "SNS Publish success"
+    },
+    "SNS Publish success": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:ap-southeast-1:468094684048:a-SNSNotification-r2WBwVoGP9sr",
+        "Message": {
+          "message": "File processed successfully!"
+        }
+      },
+      "End": true
+    },
+    "SNS Publish (1)": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:ap-southeast-1:468094684048:a-SNSNotification-r2WBwVoGP9sr",
+        "Message": {
+          "message": "Schema not matching, expected schema!"
+        }
+      },
+      "ResultPath": null,
+      "End": true
+    }
+  },
+  "QueryLanguage": "JSONPath"
+}
