@@ -22,6 +22,21 @@ Increase lambda timeout to 15 mins and also make sure memory is increased to 200
 3) The glue database "dynamocdc" and table "cdc_log" should be visible and ca nbe queries from aws glue.
 '''
 
+
+
+
+'''
+
+Sample query to see latest state via athena:
+
+with cte as(
+select *, row_number() over(partition by user_id,item_key order by sequencenumber desc) rn
+from "AwsDataCatalog"."dynamocdc"."cdc_log"
+)
+select * from cte where rn=1 and delta_type!='REMOVE'
+
+
+'''
 from boto3.dynamodb.types import TypeDeserializer
 import pandas as pd
 import awswrangler as wr
